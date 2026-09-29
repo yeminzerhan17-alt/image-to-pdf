@@ -4,6 +4,24 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Client-only iPhone web app: photos to PDF with page reordering",
+  "license": "MIT",
+  "author": "Yemin Zerhan",
+  "homepage": "https://github.com/yeminzerhan17-alt/image-to-pdf#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeminzerhan17-alt/image-to-pdf.git"
+  },
+  "bugs": "https://github.com/yeminzerhan17-alt/image-to-pdf/issues",
+  "keywords": [
+    "pdf",
+    "scanner",
+    "images",
+    "pwa",
+    "ios",
+    "offline-first",
+    "typescript",
+    "preact"
+  ],
   "scripts": {
     "dev": "vite --host",
     "build": "tsc --noEmit && vite build",
