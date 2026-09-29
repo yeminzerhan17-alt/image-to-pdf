@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "description": "Client-only iPhone web app: photos to PDF with page reordering",
   "license": "MIT",
   "author": "Yemin Zerhan",
