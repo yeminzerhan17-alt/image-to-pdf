@@ -1,0 +1,658 @@
+/* Mobile-first. Everything sized for a thumb on an iPhone, safe areas respected. */
+
+:root {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --panel: #171a21;
+  --panel-2: #1e222b;
+  --line: #272c37;
+  --text: #e8eaf0;
+  --muted: #98a0b3;
+  --accent: #3b82f6;
+  --accent-soft: #1d3a6b;
+  --danger: #ef4444;
+  --ok: #22c55e;
+  --radius: 14px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overscroll-behavior-y: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+input,
+select {
+  font: inherit;
+  font-size: 16px; /* below 16px iOS zooms the page on focus */
+}
+
+/* --- shell ---------------------------------------------------------------- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-top: var(--safe-top);
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.topbar .spacer {
+  flex: 1;
+}
+
+.count-pill {
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--panel-2);
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.canvas {
+  flex: 1;
+  padding: 12px 12px 8px;
+}
+
+/* --- buttons -------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px; /* touch target floor */
+  padding: 10px 15px;
+  border-radius: 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  font-size: 15px;
+  font-weight: 550;
+  transition: transform 0.08s ease, background 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+.btn-ghost {
+  background: transparent;
+}
+
+.btn-danger {
+  color: #fff;
+  background: color-mix(in srgb, var(--danger) 82%, #000);
+  border-color: transparent;
+}
+
+.btn[disabled] {
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.btn-icon {
+  min-width: 44px;
+  padding: 10px 12px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* --- empty state ---------------------------------------------------------- */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: 40px 20px;
+  margin-top: 8vh;
+}
+
+.empty h1 {
+  font-size: 22px;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 34ch;
+}
+
+.empty .actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(320px, 100%);
+  margin-top: 6px;
+}
+
+.privacy-note {
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  margin-top: 8px;
+  max-width: 34ch;
+}
+
+/* --- grid ----------------------------------------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+
+.tile {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  /* Vertical panning and pinch-zoom stay with the browser, so the grid still
+     scrolls normally; horizontal movement is ours. This is what stops iOS
+     claiming a hold-then-drag as a scroll before the long press fires. */
+  touch-action: pan-y pinch-zoom;
+  /* Long-press must not select text or raise the iOS callout menu. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: border-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.tile[data-lifted='true'] {
+  border-color: var(--accent);
+  transform: scale(1.04);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+  z-index: 5;
+}
+
+.tile[data-dragging='true'] {
+  opacity: 0.3;
+}
+
+.tile[data-multi='true'] {
+  border-color: var(--accent);
+}
+
+.drop-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 85%, transparent);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.drop-marker[data-side='before'] {
+  left: 0;
+}
+
+.drop-marker[data-side='after'] {
+  right: 0;
+}
+
+.tile-badge {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  min-width: 22px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.68);
+  font-size: 12px;
+  font-weight: 650;
+  text-align: center;
+  color: #fff;
+}
+
+.tile-rotated {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  padding: 2px 5px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.68);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.tile-check {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: #fff;
+}
+
+.tile-check[data-on='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Insertion halves: only present while something is selected, so the normal
+   tap-to-select gesture stays unambiguous. */
+.insert-half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  /* Decoration only: the tile's gesture decides which half was tapped. */
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 650;
+  color: #fff;
+  background: color-mix(in srgb, var(--accent) 34%, transparent);
+  opacity: 0.55;
+}
+
+.insert-half[data-side='before'] {
+  left: 0;
+}
+
+.insert-half[data-side='after'] {
+  right: 0;
+}
+
+.insert-half[data-hot='true'] {
+  opacity: 0.95;
+  background: color-mix(in srgb, var(--accent) 62%, transparent);
+}
+
+.drag-clone {
+  position: fixed;
+  z-index: 60;
+  width: 84px;
+  border-radius: 10px;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6);
+  opacity: 0.92;
+  transform: translate(-50%, -50%);
+}
+
+.drag-clone img {
+  display: block;
+  width: 100%;
+}
+
+/* --- bars ----------------------------------------------------------------- */
+
+.bottombar {
+  position: sticky;
+  bottom: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px calc(10px + var(--safe-bottom));
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+}
+
+.bottombar .grow {
+  flex: 1;
+}
+
+.selection-bar {
+  position: sticky;
+  bottom: calc(64px + var(--safe-bottom));
+  z-index: 24;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.selection-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.selection-bar .label {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Seven actions have to fit a 390px phone, so the bar uses tighter buttons
+   than the rest of the app. Still comfortably above the 40px touch floor. */
+.selection-bar .btn {
+  min-width: 42px;
+  min-height: 42px;
+  padding: 8px 9px;
+  font-size: 15px;
+}
+
+/* --- prepared / export ---------------------------------------------------- */
+
+.prepared {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin: 0 12px 10px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.prepared .meta {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.prepared .meta strong {
+  display: block;
+  font-size: 14px;
+}
+
+/* --- sheet ---------------------------------------------------------------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-end;
+  animation: fade 0.15s ease;
+}
+
+.sheet {
+  width: 100%;
+  max-height: 88dvh;
+  overflow-y: auto;
+  background: var(--panel);
+  border-radius: 20px 20px 0 0;
+  padding: 8px 16px calc(20px + var(--safe-bottom));
+  animation: rise 0.2s ease;
+}
+
+.sheet-grabber {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  margin: 8px auto 14px;
+}
+
+.sheet h2 {
+  font-size: 17px;
+  margin: 0 0 14px;
+  letter-spacing: -0.01em;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.field:last-of-type {
+  border-bottom: none;
+}
+
+.field label {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.field .control {
+  flex: 0 0 auto;
+  max-width: 58%;
+}
+
+select,
+input[type='text'],
+input[type='number'] {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  min-height: 42px;
+  width: 100%;
+}
+
+input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.segmented {
+  display: inline-flex;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.segmented button {
+  padding: 9px 11px;
+  font-size: 13px;
+  color: var(--muted);
+  min-height: 42px;
+}
+
+.segmented button[data-on='true'] {
+  background: var(--accent);
+  color: #fff;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
+.snapshot-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.snapshot-row .info {
+  flex: 1;
+  font-size: 13px;
+}
+
+.snapshot-row .info span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* --- overlay / toast ------------------------------------------------------ */
+
+.busy {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 9, 12, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.busy .card {
+  width: min(300px, 84vw);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  text-align: center;
+}
+
+.busy .card strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.busy .card p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  overflow: hidden;
+}
+
+.progress div {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.15s ease;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(78px + var(--safe-bottom));
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: min(92vw, 460px);
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: #22262f;
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+}
+
+.toast button {
+  color: var(--accent);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.warnings {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger) 42%, transparent);
+  font-size: 13px;
+}
+
+.warnings ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(14px);
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
